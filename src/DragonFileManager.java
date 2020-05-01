@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -67,6 +68,58 @@ public class DragonFileManager {
 
                     }
                     break;
+
+
+//                case "/delete":
+//                    try{
+//                        Files.deleteIfExists(this.currentFile.toPath());
+//                        this.currentFile = new File(this.currentFile,"../").getCanonicalFile();
+//                    }
+//                    catch (IOException e){
+//                        System.out.println("IOError!");
+//                    }
+//                    break;
+                case "/copyto":
+
+                    if(command.split(" ").length != 2){
+                        System.out.println("Incorrect path. Please check your new path");
+                    }
+                    else{
+                        try {
+                            Path newPath = Paths.get(command.split(" ")[1]);
+                            File newFile = new File(newPath.toString() + "/" + this.currentFile.getName());
+                            boolean isNewFilePathiIsAbsolute = newFile.isAbsolute();
+                            boolean isNewFileExists = newFile.exists();
+                            if(!isNewFilePathiIsAbsolute){
+
+                                File changeableFile = new File(this.currentFile,newPath.toString() + "/" + this.currentFile.getName()).getCanonicalFile();
+                                Files.copy(currentFile.toPath(),changeableFile.toPath());
+                            }
+                            else{
+                                Files.copy(currentFile.toPath(),newFile.toPath());
+                            }
+                        }
+                        catch (InvalidPathException | IOException e){
+                            e.printStackTrace();
+                        }
+
+                    }
+
+
+                    break;
+
+//                case "/open":
+//                    try {
+//                        if (this.currentFile.canExecute()) {
+//                            Runtime.getRuntime().exec("C:\\Users\\Azat\\Desktop\\cdsdc\\sdf.txt");
+//                        } else {
+//                            System.out.println("This file can't be execute!");
+//                        }
+//                    }
+//                    catch (IOException e){
+//                        System.out.println("Problems with executing!");
+//                    }
+
                 case "/dir":
                     System.out.println();
                     ConsoleWriter.writeDir(currentFile);
@@ -89,7 +142,7 @@ public class DragonFileManager {
     }
 
     public static String getHelp(){
-        return "Available commands: /dir , /cd , /help";
+        return "Available commands: /dir , /cd , /help , /delete , /copyto";
     }
 
 
