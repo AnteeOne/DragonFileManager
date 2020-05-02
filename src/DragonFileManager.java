@@ -1,3 +1,6 @@
+import sun.security.krb5.internal.crypto.Des;
+
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,7 +38,7 @@ public class DragonFileManager {
             switch (command.split(" ")[0]) {
                 case "/cd":
                     if(command.split(" ").length != 2){
-                        System.out.println("Incorrect path. Please check your new path");
+                        System.out.println("Incorrect path. Please check your new path_1");
                     }
                     else{
                         try {
@@ -49,7 +52,7 @@ public class DragonFileManager {
                                     this.currentFile = changeableFile;
                                 }
                                 else{
-                                    System.out.println("Incorrect path.File doesn't exist");
+                                    System.out.println("Incorrect path.File doesn't exist_2");
                                 }
                             }
                             else{
@@ -57,28 +60,31 @@ public class DragonFileManager {
                                     this.currentFile = newFile.getAbsoluteFile();
                                 }
                                 else{
-                                    System.out.println("Incorrect path.File doesn't exist");
+                                    System.out.println("Incorrect path.File doesn't exist_3");
                                 }
 
                             }
                         }
                         catch (InvalidPathException | IOException e){
-                            System.out.println("Incorrect path. Please check your new path");
+                            System.out.println("Incorrect path. Please check your new path_4");
+                            e.printStackTrace();
                         }
 
                     }
                     break;
 
 
-//                case "/delete":
-//                    try{
-//                        Files.deleteIfExists(this.currentFile.toPath());
-//                        this.currentFile = new File(this.currentFile,"../").getCanonicalFile();
-//                    }
-//                    catch (IOException e){
-//                        System.out.println("IOError!");
-//                    }
-//                    break;
+                case "/delete":
+                    try{
+                        Files.deleteIfExists(this.currentFile.toPath());
+                        this.currentFile = new File(this.currentFile,"../").getCanonicalFile();
+                    }
+                    catch (IOException e){
+                        System.out.println("IOError!");
+                    }
+                    break;
+
+
                 case "/copyto":
 
                     if(command.split(" ").length != 2){
@@ -108,17 +114,21 @@ public class DragonFileManager {
 
                     break;
 
-//                case "/open":
-//                    try {
-//                        if (this.currentFile.canExecute()) {
-//                            Runtime.getRuntime().exec("C:\\Users\\Azat\\Desktop\\cdsdc\\sdf.txt");
-//                        } else {
-//                            System.out.println("This file can't be execute!");
-//                        }
-//                    }
-//                    catch (IOException e){
-//                        System.out.println("Problems with executing!");
-//                    }
+                case "/open":
+                    try {
+                        Desktop desktop = Desktop.getDesktop();
+                        if (this.currentFile.canExecute()) {
+                            if(desktop.isSupported(Desktop.Action.OPEN)){
+                                desktop.open(this.currentFile);
+                            }
+                        } else {
+                            System.out.println("This file can't be execute!");
+                        }
+                    }
+                    catch (IOException e){
+                        System.out.println("Problems with executing!");
+                    }
+                    break;
 
                 case "/dir":
                     System.out.println();
