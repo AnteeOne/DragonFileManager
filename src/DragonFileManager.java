@@ -1,8 +1,9 @@
 import sun.security.krb5.internal.crypto.Des;
 
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
@@ -37,35 +38,30 @@ public class DragonFileManager {
         while (true) {
             switch (command.split(" ")[0]) {
                 case "/cd":
-                    if(command.split(" ").length != 2){
+                    if (command.split(" ").length != 2) {
                         System.out.println("Incorrect path. Please check your new path_1");
-                    }
-                    else{
+                    } else {
                         try {
                             Path newPath = Paths.get(command.split(" ")[1]);
                             File newFile = new File(newPath.toString());
                             boolean isNewFilePathiIsAbsolute = newFile.isAbsolute();
                             boolean isNewFileExists = newFile.exists();
-                            if(!isNewFilePathiIsAbsolute){
-                                File changeableFile = new File(this.currentFile,newPath.toString()).getCanonicalFile();
-                                if(changeableFile.exists()){
+                            if (!isNewFilePathiIsAbsolute) {
+                                File changeableFile = new File(this.currentFile, newPath.toString()).getCanonicalFile();
+                                if (changeableFile.exists()) {
                                     this.currentFile = changeableFile;
-                                }
-                                else{
+                                } else {
                                     System.out.println("Incorrect path.File doesn't exist_2");
                                 }
-                            }
-                            else{
-                                if(newFile.exists()){
+                            } else {
+                                if (newFile.exists()) {
                                     this.currentFile = newFile.getAbsoluteFile();
-                                }
-                                else{
+                                } else {
                                     System.out.println("Incorrect path.File doesn't exist_3");
                                 }
 
                             }
-                        }
-                        catch (InvalidPathException | IOException e){
+                        } catch (InvalidPathException | IOException e) {
                             System.out.println("Incorrect path. Please check your new path_4");
                             e.printStackTrace();
                         }
@@ -75,11 +71,10 @@ public class DragonFileManager {
 
 
                 case "/delete":
-                    try{
+                    try {
                         Files.deleteIfExists(this.currentFile.toPath());
-                        this.currentFile = new File(this.currentFile,"../").getCanonicalFile();
-                    }
-                    catch (IOException e){
+                        this.currentFile = new File(this.currentFile, "../").getCanonicalFile();
+                    } catch (IOException e) {
                         System.out.println("IOError!");
                     }
                     break;
@@ -87,25 +82,22 @@ public class DragonFileManager {
 
                 case "/copyto":
 
-                    if(command.split(" ").length != 2){
+                    if (command.split(" ").length != 2) {
                         System.out.println("Incorrect path. Please check your new path");
-                    }
-                    else{
+                    } else {
                         try {
                             Path newPath = Paths.get(command.split(" ")[1]);
                             File newFile = new File(newPath.toString() + "/" + this.currentFile.getName());
                             boolean isNewFilePathiIsAbsolute = newFile.isAbsolute();
                             boolean isNewFileExists = newFile.exists();
-                            if(!isNewFilePathiIsAbsolute){
+                            if (!isNewFilePathiIsAbsolute) {
 
-                                File changeableFile = new File(this.currentFile,newPath.toString() + "/" + this.currentFile.getName()).getCanonicalFile();
-                                Files.copy(currentFile.toPath(),changeableFile.toPath());
+                                File changeableFile = new File(this.currentFile, newPath.toString() + "/" + this.currentFile.getName()).getCanonicalFile();
+                                Files.copy(currentFile.toPath(), changeableFile.toPath());
+                            } else {
+                                Files.copy(currentFile.toPath(), newFile.toPath());
                             }
-                            else{
-                                Files.copy(currentFile.toPath(),newFile.toPath());
-                            }
-                        }
-                        catch (InvalidPathException | IOException e){
+                        } catch (InvalidPathException | IOException e) {
                             e.printStackTrace();
                         }
 
@@ -118,14 +110,13 @@ public class DragonFileManager {
                     try {
                         Desktop desktop = Desktop.getDesktop();
                         if (this.currentFile.canExecute()) {
-                            if(desktop.isSupported(Desktop.Action.OPEN)){
+                            if (desktop.isSupported(Desktop.Action.OPEN)) {
                                 desktop.open(this.currentFile);
                             }
                         } else {
                             System.out.println("This file can't be execute!");
                         }
-                    }
-                    catch (IOException e){
+                    } catch (IOException e) {
                         System.out.println("Problems with executing!");
                     }
                     break;
@@ -134,6 +125,34 @@ public class DragonFileManager {
                     System.out.println();
                     ConsoleWriter.writeDir(currentFile);
                     System.out.println();
+                    break;
+
+                case "/print":
+                    //test path - C:\Users\Azat\Desktop\EnglishEssays.DOCX
+                    if(command.split(" ").length != 2){
+                        System.out.println("Incorrect command.Maybe you have just forgotten to write some Charset?");
+                    }
+                    else{
+                        String charset = command.split(" ")[1];
+                        try (BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(currentFile), charset))) {
+                            String line;
+                            while ((line = in.readLine()) != null) {
+                                System.out.println(line);
+                            }
+                        } catch (FileNotFoundException e0) {
+                            System.out.println("Please , move to file directory , not folder!");
+                        } catch (UnsupportedEncodingException e314){
+                            System.out.println("Error!Please type existing encoding!");
+                            System.out.println("US-ASCII");
+                            System.out.println("ISO-8859-1");
+                            System.out.println("UTF-8");
+                            System.out.println("UTF-16BE");
+                            System.out.println("UTF-16LE");
+                            System.out.println("UTF-16");
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    }
                     break;
                 case "/exit":
                     return;
@@ -152,7 +171,7 @@ public class DragonFileManager {
     }
 
     public static String getHelp(){
-        return "Available commands: /dir , /cd , /help , /delete , /copyto";
+        return "Available commands: /dir , /cd , /help , /delete , /copyto , /print";
     }
 
 
